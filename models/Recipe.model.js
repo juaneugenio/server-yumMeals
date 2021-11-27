@@ -21,19 +21,19 @@ const recipeSchema = new Schema({
     type: [String],
     required: true,
   },
-  images: {
-    type: String,
-    default: "PUT A DEFAULT URL OR WHATEVER",
-  },
-  //HOW CAN WE LINK EACH RATING TO THE USER WHO MAKES THE RATING
-  ratings: {
-    type: Number,
-    default: [0],
-  },
+  // images: {
+  //   type: String,
+  //   default: "PUT A DEFAULT URL OR WHATEVER",
+  // },
+  //! HOW CAN WE LINK EACH RATING TO THE USER WHO MAKES THE RATING
+  // ratings: {
+  //   type: Number,
+  //   default: [0],
+  // },
   // this second object adds extra properties: `createdAt` and `updatedAt`
   timestamps: true,
 });
 
-const User = model("User", userSchema);
+const Recipe = model("Recipe", recipeSchema);
 
-module.exports = User;
+module.exports = Recipe;

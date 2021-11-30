@@ -25,7 +25,7 @@ router.post("/create", isLoggedIn, (req, res) => {
   })
     .then((createRecipe) => {
       console.log(createRecipe);
-      // res.json({ recipes: createRecipe });
+      res.json({ recipes: createRecipe });
     })
     .catch((e) => {
       console.log(e);

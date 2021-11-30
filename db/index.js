@@ -17,3 +17,7 @@ mongoose
   .catch((err) => {
     console.error("Error connecting to mongo: ", err);
   });
+
+if (process.env.REACT_ENV !== "production") {
+  mongoose.set("debug", true);
+}

@@ -12,17 +12,24 @@ router.get("/", isLoggedIn, (req, res) => {
 
 //upload.single("juanPostPic")
 router.post("/create", isLoggedIn, (req, res) => {
-  console.log(`LOOOOOOOOOOOK`, req.headers);
+  // console.log(`LOOOOOOOOOOOK`, req.headers);
+  console.log(req.body);
   Recipe.create({
     owner: req.user._id,
     title: req.body.title,
+    category: req.body.category,
+    ingredients: req.body.ingredients,
+    stepsRecipe: req.body.stepsRecipe,
+
     // image: req.file.path,
   })
     .then((createRecipe) => {
-      res.json({ recipes: createRecipe });
+      console.log(createRecipe);
+      // res.json({ recipes: createRecipe });
     })
     .catch((e) => {
-      res.json({ recipes: {} });
+      console.log(e);
+      res.status(500).json({ errorMessage: "Something fed up" });
     });
 });
 

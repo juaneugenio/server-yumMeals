@@ -32,6 +32,19 @@ router.post("/create", isLoggedIn, (req, res) => {
     });
 });
 
-// router.get("/:id", (req, res))
+router.get("/:dynamic", (req, res) => {
+  const { dynamic } = req.params;
+
+  Recipe.findById(dynamic)
+    .populate("owner")
+    .then((singleRecipe) => {
+      if (!singleRecipe) {
+        return res.status(404).json({
+          errorMessage: `Recipe with the id ${dynamic} does not exist`,
+        });
+      }
+      res.json({ recipe: singleRecipe });
+    });
+});
 
 module.exports = router;

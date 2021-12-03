@@ -12,7 +12,6 @@ router.get("/", isLoggedIn, (req, res) => {
 
 //upload.single("juanPostPic")
 router.post("/create", isLoggedIn, (req, res) => {
-  // console.log(`LOOOOOOOOOOOK`, req.headers);
   console.log(req.body);
   Recipe.create({
     owner: req.user._id,

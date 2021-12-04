@@ -4,7 +4,7 @@ const isLoggedIn = require("../middleware/isLoggedIn");
 const Recipe = require("../models/Recipe.model");
 const router = Router();
 
-router.get("/", isLoggedIn, (req, res) => {
+router.get("/", (req, res) => {
   Recipe.find({}).then((allRecipes) => {
     res.json({ recipes: allRecipes });
   });
@@ -50,5 +50,15 @@ router.get("/:id", (req, res) => {
       console.log(recipe);
     });
 });
+
+// Deleting single Recipe
+// router.delete(
+//   "/:id/delete",
+//   isLoggedIn,
+//   (req, res) => {
+//     Recipe.findByIdAndDelete(req.body.id)
+
+//   }
+// );
 
 module.exports = router;

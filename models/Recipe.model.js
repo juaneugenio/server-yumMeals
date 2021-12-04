@@ -25,10 +25,6 @@ const recipeSchema = new Schema(
     //   type: String,
     //   default: "PUT A DEFAULT URL OR WHATEVER",
     // },
-    // //! HOW CAN WE LINK EACH RATING TO THE USER WHO MAKES THE RATING
-    // ratings: [
-    //   { rating: Number, user: { type: Schema.Types.ObjectId, ref: "User" } },
-    // ],
   },
   // this second object adds extra properties: `createdAt` and `updatedAt`{
   {

@@ -12,7 +12,8 @@ router.get("/", isLoggedIn, (req, res) => {
 
 //upload.single("juanPostPic")
 router.post("/create", isLoggedIn, (req, res) => {
-  console.log(req.body);
+  console.log(`LOOOOOOOOOOOK`, req.headers);
+  console.log(`reqbody`, req.body);
   Recipe.create({
     owner: req.user._id,
     title: req.body.title,
@@ -32,18 +33,21 @@ router.post("/create", isLoggedIn, (req, res) => {
     });
 });
 
-router.get("/:dynamic", (req, res) => {
-  const { dynamic } = req.params;
+router.get("/:id", (req, res) => {
+  const { id } = req.params;
+  console.log(req.params);
 
-  Recipe.findById(dynamic)
+  Recipe.findById(id)
     .populate("owner")
-    .then((singleRecipe) => {
-      if (!singleRecipe) {
-        return res.status(404).json({
-          errorMessage: `Recipe with the id ${dynamic} does not exist`,
-        });
+    .then((recipe) => {
+      if (!recipe) {
+        return res
+          .status(404)
+          .json({ errorMessage: `Post with the id ${id} does not exist` });
       }
-      res.json({ recipe: singleRecipe });
+
+      res.json({ recipe });
+      console.log(recipe);
     });
 });
 

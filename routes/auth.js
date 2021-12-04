@@ -43,6 +43,10 @@ router.post("/signup", isLoggedOut, (req, res) => {
       .json({ errorMessage: "Please provide your username." });
   }
 
+  if (!email) {
+    return res.status(400).json({ errorMessage: "Please provide your email." });
+  }
+
   if (password.length < 8) {
     return res.status(400).json({
       errorMessage: "Your password needs to be at least 8 characters long.",
@@ -61,11 +65,11 @@ router.post("/signup", isLoggedOut, (req, res) => {
   }
   */
 
-  // Search the database for a user with the username submitted in the form
-  User.findOne({ username }).then((found) => {
+  // Search the database for a user with the email submitted in the form
+  User.findOne({ email }).then((found) => {
     // If the user is found, send the message username is taken
     if (found) {
-      return res.status(400).json({ errorMessage: "Username already taken." });
+      return res.status(400).json({ errorMessage: "Email already taken." });
     }
 
     // if user is not found, create a new user - start with hashing the password
@@ -95,7 +99,7 @@ router.post("/signup", isLoggedOut, (req, res) => {
         if (error.code === 11000) {
           return res.status(400).json({
             errorMessage:
-              "Username need to be unique. The username you chose is already in use.",
+              "Email needs to be unique. The email you chose is already in use.",
           });
         }
         return res.status(500).json({ errorMessage: error.message });
@@ -104,12 +108,10 @@ router.post("/signup", isLoggedOut, (req, res) => {
 });
 
 router.post("/login", isLoggedOut, (req, res, next) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
-  if (!username) {
-    return res
-      .status(400)
-      .json({ errorMessage: "Please provide your username." });
+  if (!email) {
+    return res.status(400).json({ errorMessage: "Please provide your email." });
   }
 
   // Here we use the same logic as above
@@ -121,7 +123,7 @@ router.post("/login", isLoggedOut, (req, res, next) => {
   }
 
   // Search the database for a user with the username submitted in the form
-  User.findOne({ username })
+  User.findOne({ email })
     .then((user) => {
       // If the user isn't found, send the message that user provided wrong credentials
       if (!user) {

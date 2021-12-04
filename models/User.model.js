@@ -12,6 +12,11 @@ const userSchema = new Schema(
       unique: true,
     },
     password: String,
+    userImage: {
+      type: String,
+      default:
+        "https://res.cloudinary.com/ilev/image/upload/v1638624728/Yummeals/Honey-Garlic-Shrimp-026_sdyuji.jpg",
+    },
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`

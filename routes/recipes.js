@@ -4,7 +4,7 @@ const isLoggedIn = require("../middleware/isLoggedIn");
 const Recipe = require("../models/Recipe.model");
 const router = Router();
 
-router.get("/", isLoggedIn, (req, res) => {
+router.get("/", (req, res) => {
   Recipe.find({}).then((allRecipes) => {
     res.json({ recipes: allRecipes });
   });

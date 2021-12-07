@@ -12,8 +12,6 @@ router.get("/", (req, res) => {
 
 //upload.single("juanPostPic")
 router.post("/create", isLoggedIn, (req, res) => {
-  console.log(`LOOOOOOOOOOOK`, req.headers);
-  console.log(`reqbody`, req.body);
   Recipe.create({
     owner: req.user._id,
     title: req.body.title,
@@ -35,7 +33,7 @@ router.post("/create", isLoggedIn, (req, res) => {
 
 router.get("/:id", (req, res) => {
   const { id } = req.params;
-  console.log(req.params);
+  // console.log(req.params);
 
   Recipe.findById(id)
     .populate("owner")
@@ -43,22 +41,25 @@ router.get("/:id", (req, res) => {
       if (!recipe) {
         return res
           .status(404)
-          .json({ errorMessage: `Post with the id ${id} does not exist` });
+          .json({ errorMessage: `Recipe with the id ${id} does not exist` });
       }
 
       res.json({ recipe });
-      console.log(recipe);
+      // console.log(recipe);
     });
 });
 
-// Deleting single Recipe
-// router.delete(
-//   "/:id/delete",
-//   isLoggedIn,
-//   (req, res) => {
-//     Recipe.findByIdAndDelete(req.body.id)
-
-//   }
-// );
+// Deleting single Recipe here in the Backend and then we can go to the related
+router.delete("/:id", isLoggedIn, (req, res) => {
+  const { id } = req.params;
+  // console.log(req.params);
+  Recipe.findByIdAndDelete(id)
+    .then((deletedRecipe) =>
+      res.status(200).json({ message: `Recipe ${deletedRecipe} was deleted` })
+    )
+    .catch((error) =>
+      res.status(500).json({ message: "Something went wrong" })
+    );
+});
 
 module.exports = router;

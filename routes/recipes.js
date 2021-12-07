@@ -13,8 +13,6 @@ router.get("/", (req, res) => {
 
 //upload.single("juanPostPic")
 router.post("/create", isLoggedIn, (req, res) => {
-  console.log(`LOOOOOOOOOOOK`, req.headers);
-  console.log(`reqbody`, req.body);
   Recipe.create({
     owner: req.user._id,
     title: req.body.title,
@@ -36,7 +34,7 @@ router.post("/create", isLoggedIn, (req, res) => {
 
 router.get("/:id", (req, res) => {
   const { id } = req.params;
-  console.log(req.params);
+  // console.log(req.params);
 
   Recipe.findById(id)
     .populate("owner")
@@ -44,11 +42,11 @@ router.get("/:id", (req, res) => {
       if (!recipe) {
         return res
           .status(404)
-          .json({ errorMessage: `Post with the id ${id} does not exist` });
+          .json({ errorMessage: `Recipe with the id ${id} does not exist` });
       }
 
       res.json({ recipe });
-      console.log(recipe);
+      // console.log(recipe);
     });
 });
 
@@ -71,6 +69,39 @@ router.post("/comment", isLoggedIn, (req, res) => {
       console.log(e);
       res.status(500).json({ errorMessage: "Something fed up" });
     });
+});
+
+// Deleting singleRecipe goes here in the Backend and then we can go to the related handleDeleteSingleRecipe in the frontend
+router.delete("/:id", isLoggedIn, (req, res) => {
+  const { id } = req.params;
+  // console.log(req.params);
+  Recipe.findByIdAndDelete(id)
+    .then((deletedRecipe) =>
+      res.status(200).json({ message: `Recipe ${deletedRecipe} was deleted` })
+    )
+    .catch((error) =>
+      res.status(500).json({ message: "Something went wrong" })
+    );
+});
+
+router.put("/edit", isLoggedIn, (req, res) => {
+  // const { id } = req.params;
+
+  Recipe.findOneAndUpdate(
+    { _id: req.params.id },
+    {
+      $set: {
+        title: req.body.title,
+        author: req.body.author,
+        description: req.body.description,
+      },
+    },
+    { new: true }
+  )
+    .then((info) => {
+      res.json(info);
+    })
+    .catch((err) => res.status(400).json({ msg: "update failed" }));
 });
 
 module.exports = router;

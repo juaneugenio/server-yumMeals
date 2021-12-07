@@ -4,7 +4,7 @@ const User = require("../models/User.model.js");
 const isLoggedIn = require("../middleware/isLoggedIn");
 
 //method .single. it expect a fiel name which the value is a string. it`s the fiel name of our form that it will hold our image
-router.post(
+router.patch(
   "/updateProfileImage",
   isLoggedIn,
   upload.single("profileImage"),
@@ -18,7 +18,7 @@ router.post(
       .then((updatedUser) => {
         res.json({
           success: true,
-          profilePic: updatedUser.profileImage,
+          profileImage: updatedUser.profileImage,
         });
       })
       .catch((err) => {

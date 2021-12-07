@@ -12,7 +12,7 @@ const userSchema = new Schema(
       unique: true,
     },
     password: String,
-    userImage: {
+    profileImage: {
       type: String,
       default:
         "https://res.cloudinary.com/ilev/image/upload/v1638624728/Yummeals/Honey-Garlic-Shrimp-026_sdyuji.jpg",

@@ -33,22 +33,61 @@ router.post("/create", isLoggedIn, (req, res) => {
     });
 });
 
-router.get("/:id", (req, res) => {
-  const { id } = req.params;
-  console.log(req.params);
+// router.get("/:recipeId", (req, res) => {
+//   const { recipeId } = req.params;
 
-  Recipe.findById(id)
+//   const singleRecipe = allRecipes.find((element) => element.id === recipeId);
+//   if (!singleRecipe) {
+//     return res
+//       .status(404)
+//       .json({ errorMessage: `Recipe with the id ${recipeId} does not exist` });
+//   }
+//   res.json({ recipe: singleRecipe });
+// });
+
+// router.get("/:recipeId", (req, res) => {
+//   const { recipeId } = req.params;
+
+//   Recipe.findById(recipeId)
+//   .populate("owner")
+//   .then((singleRecipe) => {
+//   if (!singleRecipe) {
+//     return res
+//       .status(404)
+//       .json({ errorMessage: `Recipe with the id ${recipeId} does not exist` });
+//   }
+//   res.json({ recipe: singleRecipe });
+// });
+
+router.get("/:dynamic", (req, res) => {
+  const { dynamic } = req.params;
+
+  Recipe.findById(dynamic)
     .populate("owner")
-    .then((recipe) => {
-      if (!recipe) {
-        return res
-          .status(404)
-          .json({ errorMessage: `Post with the id ${id} does not exist` });
+    .then((singleRecipe) => {
+      if (!singleRecipe) {
+        return res.status(404).json({
+          errorMessage: `Recipe with the id ${dynamic} does not exist`,
+        });
       }
-
-      res.json({ recipe });
-      console.log(recipe);
+      res.json({ recipe: singleRecipe });
     });
+  // router.get("/:id", (req, res) => {
+  //   const { id } = req.params;
+  //   console.log(req.params);
+
+  //   Recipe.findById(id)
+  //     .populate("owner")
+  //     .then((recipe) => {
+  //       if (!recipe) {
+  //         return res
+  //           .status(404)
+  //           .json({ errorMessage: `Post with the id ${id} does not exist` });
+  //       }
+
+  //       res.json({ recipe });
+  //       console.log(recipe);
+  //     });
 });
 
 module.exports = router;

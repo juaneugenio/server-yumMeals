@@ -49,7 +49,7 @@ router.get("/:id", (req, res) => {
     });
 });
 
-// Deleting single Recipe here in the Backend and then we can go to the related
+// Deleting singleRecipe goes here in the Backend and then we can go to the related handleDeleteSingleRecipe in the frontend
 router.delete("/:id", isLoggedIn, (req, res) => {
   const { id } = req.params;
   // console.log(req.params);
@@ -60,6 +60,26 @@ router.delete("/:id", isLoggedIn, (req, res) => {
     .catch((error) =>
       res.status(500).json({ message: "Something went wrong" })
     );
+});
+
+router.put("/edit", isLoggedIn, (req, res) => {
+  // const { id } = req.params;
+
+  Recipe.findOneAndUpdate(
+    { _id: req.params.id },
+    {
+      $set: {
+        title: req.body.title,
+        author: req.body.author,
+        description: req.body.description,
+      },
+    },
+    { new: true }
+  )
+    .then((info) => {
+      res.json(info);
+    })
+    .catch((err) => res.status(400).json({ msg: "update failed" }));
 });
 
 module.exports = router;

@@ -1,6 +1,7 @@
 const { Router } = require("express");
 // const upload = require("../middleware/cloudinary");
 const isLoggedIn = require("../middleware/isLoggedIn");
+const Rating = require("../models/Rating.model");
 const Recipe = require("../models/Recipe.model");
 const router = Router();
 
@@ -48,6 +49,27 @@ router.get("/:id", (req, res) => {
 
       res.json({ recipe });
       console.log(recipe);
+    });
+});
+
+router.post("/comment", isLoggedIn, (req, res) => {
+  // console.log(`LOOOOOOOOOOOK`, req.headers);
+  // console.log(`reqbody`, req.body);
+  Rating.create({
+    user: req.user._id,
+    recipe: req.body.recipeId,
+    rating: req.body.userRating,
+    comment: req.body.comment,
+
+    // image: req.file.path,
+  })
+    .then((createRating) => {
+      console.log("createRating:", createRating);
+      res.json({ rating: createRating });
+    })
+    .catch((e) => {
+      console.log(e);
+      res.status(500).json({ errorMessage: "Something fed up" });
     });
 });
 

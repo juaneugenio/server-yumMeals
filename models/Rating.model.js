@@ -14,6 +14,6 @@ const ratingSchema = new Schema(
   }
 );
 
-const Rating = model("Rating", userSchema);
+const Rating = model("Rating", ratingSchema);
 
 module.exports = Rating;

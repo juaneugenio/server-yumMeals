@@ -49,7 +49,7 @@ router.get("/:id", (req, res) => {
     });
 });
 
-// Deleting singleRecipe goes here in the Backend and then we can go to the related handleDeleteSingleRecipe in the frontend
+// Deleting singleRecipe goes here in the Backend and then we can go to the related handleDeleteSingleRecipe in the frontend.
 router.delete("/:id", isLoggedIn, (req, res) => {
   const { id } = req.params;
   // console.log(req.params);
@@ -62,24 +62,22 @@ router.delete("/:id", isLoggedIn, (req, res) => {
     );
 });
 
-router.put("/edit", isLoggedIn, (req, res) => {
-  // const { id } = req.params;
+// Updating Recipe, similiar as Deleting goes to related handleUpdateRecipe in the recipeService frontend.
+router.put("/:id", isLoggedIn, (req, res) => {
+  const { id } = req.params;
+  const { owner } = req.user._id;
+  const { titel, category, ingredients, stepsRecipe } = req.body;
+  const newRecipe = { titel, category, ingredients, stepsRecipe };
 
-  Recipe.findOneAndUpdate(
-    { _id: req.params.id },
-    {
-      $set: {
-        title: req.body.title,
-        author: req.body.author,
-        description: req.body.description,
-      },
-    },
-    { new: true }
-  )
-    .then((info) => {
-      res.json(info);
-    })
-    .catch((err) => res.status(400).json({ msg: "update failed" }));
+  Recipe.findByIdAndUpdate(id, newRecipe)
+    .then((updatedRecipe) =>
+      res
+        .status(200)
+        .json({ message: `Recipe ${updatedRecipe} was succesful updated` })
+    )
+    .catch((error) =>
+      res.status(500).json({ message: "Something went wrong" })
+    );
 });
 
 module.exports = router;

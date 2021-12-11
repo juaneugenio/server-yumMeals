@@ -23,7 +23,7 @@ router.post("/create", isLoggedIn, (req, res) => {
     // image: req.file.path,
   })
     .then((createRecipe) => {
-      console.log(createRecipe);
+      // console.log(createRecipe);
       res.json({ recipes: createRecipe });
     })
     .catch((e) => {
@@ -51,6 +51,7 @@ router.get("/:id", (req, res) => {
     });
 });
 
+<<<<<<< HEAD
 router.post("/comment", isLoggedIn, (req, res) => {
   // console.log(`LOOOOOOOOOOOK`, req.headers);
   // console.log(`reqbody`, req.body);
@@ -73,6 +74,9 @@ router.post("/comment", isLoggedIn, (req, res) => {
 });
 
 // Deleting singleRecipe goes here in the Backend and then we can go to the related handleDeleteSingleRecipe in the frontend
+=======
+// Deleting singleRecipe goes here in the Backend and then we can go to the related handleDeleteSingleRecipe in the frontend.
+>>>>>>> juan
 router.delete("/:id", isLoggedIn, (req, res) => {
   const { id } = req.params;
   // console.log(req.params);
@@ -80,29 +84,73 @@ router.delete("/:id", isLoggedIn, (req, res) => {
     .then((deletedRecipe) =>
       res.status(200).json({ message: `Recipe ${deletedRecipe} was deleted` })
     )
-    .catch((error) =>
-      res.status(500).json({ message: "Something went wrong" })
-    );
+    .catch((error) => res.status(500).json({ message: "Something went wrong" }));
 });
 
-router.put("/edit", isLoggedIn, (req, res) => {
-  // const { id } = req.params;
+// Updating Recipe, similiar as Deleting goes to related handleUpdateRecipe in the recipeService frontend.
+router.put("/:recipeId", isLoggedIn, (req, res) => {
+  const { recipeId } = req.params;
+  // const { owner } = req.user._id;
+  const { title, category, ingredients, stepsRecipe, cookingTime } = req.body;
+  const newRecipe = { title, category, ingredients, stepsRecipe, cookingTime };
 
-  Recipe.findOneAndUpdate(
-    { _id: req.params.id },
-    {
-      $set: {
-        title: req.body.title,
-        author: req.body.author,
-        description: req.body.description,
-      },
-    },
-    { new: true }
-  )
-    .then((info) => {
-      res.json(info);
+  Recipe.findByIdAndUpdate(recipeId, newRecipe, { new: true })
+    .then((updatedRecipe) => {
+      console.log({ updatedRecipe });
+      res.status(200).json({ message: `Recipe ${updatedRecipe} was succesful updated` });
     })
-    .catch((err) => res.status(400).json({ msg: "update failed" }));
+    .catch((error) => res.status(500).json({ message: "Something went wrong" }));
 });
+
+// router.get("/:id/edit", isLoggedIn, (req, res) => {
+//   const { id } = req.params;
+//   // console.log(req.params);
+
+//   Recipe.findById(id)
+//     .populate("owner")
+//     .then((recipe) => {
+//       if (!recipe) {
+//         return res
+//           .status(404)
+//           .json({ errorMessage: `Recipe with the id ${id} does not exist` });
+//       }
+
+//       res.json({ recipe });
+//       // console.log(recipe);
+//     });
+// });
+
+// router.patch("/:id/edit", isLoggedIn, (req, res) => {
+//   const { id } = req.params;
+//   const { title, category, ingredients, stepsRecipe, cookingTime } = req.body;
+
+//   Recipe.findById(id)
+//     .populate("owner")
+//     .then((recipe) => {
+//       console.log("this is ", recipe);
+//       if (!recipe) {
+//         return res
+//           .status(404)
+//           .json({ errorMessage: `Recipe with the id ${id} does not exist` });
+//       }
+//       //     // compare here
+//       // if (req.user._id === req.recipe.owner)
+//       //we have to get the check the Spider for this.
+
+//       // Recipe.findByIdAndUpdate(
+//       //   id,
+//       //   { title, category, ingredients, stepsRecipe, cookingTime },
+//       //   // {
+//       //   //   title: req.body.title,
+//       //   //   category: req.body.category,
+//       //   //   ingredients: req.body.ingredients,
+//       //   //   stepsRecipe: req.body.stepsRecipe,
+//       //   // },
+//       //   { new: true }
+//       // ).then((newRecipe) => {
+//       //   res.json({ recipe: newRecipe });
+//       // });
+//     });
+// });
 
 module.exports = router;

@@ -11,10 +11,10 @@ const recipeSchema = new Schema(
     category: {
       type: String,
     },
-    // cookingTime: {
-    //   type: Number,
-    //   required: true,
-    // },
+    cookingTime: {
+      type: Number,
+      // required: true,
+    },
     ingredients: {
       type: [String],
     },

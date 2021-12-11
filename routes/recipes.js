@@ -39,6 +39,7 @@ router.get("/:id", (req, res) => {
   Recipe.findById(id)
     .populate("owner")
     .then((recipe) => {
+      console.log("THIS IS A RECIPE", recipe);
       if (!recipe) {
         return res
           .status(404)

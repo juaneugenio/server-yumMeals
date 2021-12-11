@@ -1,9 +1,11 @@
 const { Router } = require("express");
+const DynamicRecipe = require("../middleware/DynamicRecipe");
 // const upload = require("../middleware/cloudinary");
 const isLoggedIn = require("../middleware/isLoggedIn");
 const Rating = require("../models/Rating.model");
 const Recipe = require("../models/Recipe.model");
 const router = Router();
+const compareIds = require("../utils/compareIds");
 
 router.get("/", (req, res) => {
   Recipe.find({}).then((allRecipes) => {
@@ -33,21 +35,58 @@ router.post("/create", isLoggedIn, (req, res) => {
 });
 
 router.get("/:id", (req, res) => {
-  const { id } = req.params;
-  // console.log(req.params);
+  console.log("authorization:", req.headers.authorization);
+  const sessionId = req.headers.authorization;
+  console.log("sessionId:", sessionId);
+  /**
+   * req.headers.authorization's value is the access token = the ID of the session
+   * which is unique for every user, and stored in the DB in the Session Collection
+   *
+   *  */
 
+  const { id } = req.params;
+  console.log("req.params:", req.params);
   Recipe.findById(id)
     .populate("owner")
     .then((recipe) => {
       if (!recipe) {
-        return res
-          .status(404)
-          .json({ errorMessage: `Recipe with the id ${id} does not exist` });
+        return res.status(404).json({
+          errorMessage: `The recipe with this id ${id} does not exist`,
+        });
       }
 
-      res.json({ recipe });
-      // console.log(recipe);
+      // console.log("req.recipe._id:", req.recipe._id);
+      // console.log("req.params:", req.params);
+      // console.log("req.params.id:", req.params.id);
+
+      Rating.find({ recipe: id })
+        .populate("user recipe")
+        .then((rating) => {
+          if (!rating) {
+            return res.json({ recipe });
+          }
+
+          res.json({ recipe, rating });
+          console.log("rating:", rating);
+        });
     });
+});
+
+router.get("/:search", (req, res) => {
+  const { search } = req.params;
+  console.log("req.params:", req.params);
+  // const filter = { title: search };
+  // Recipe.find({ filter })
+  //   .populate("owner")
+  //   .then((results) => {
+  //     if (!results) {
+  //       return res.status(404).json({
+  //         errorMessage: `No match found`,
+  //       });
+  //     }
+  //     res.json({ results });
+  //     console.log("results:", results);
+  // });
 });
 
 router.post("/comment", isLoggedIn, (req, res) => {
@@ -74,7 +113,7 @@ router.post("/comment", isLoggedIn, (req, res) => {
 // Deleting singleRecipe goes here in the Backend and then we can go to the related handleDeleteSingleRecipe in the frontend
 router.delete("/:id", isLoggedIn, (req, res) => {
   const { id } = req.params;
-  // console.log(req.params);
+  console.log("delete req.params:", req.params);
   Recipe.findByIdAndDelete(id)
     .then((deletedRecipe) =>
       res.status(200).json({ message: `Recipe ${deletedRecipe} was deleted` })

@@ -86,8 +86,10 @@ router.delete("/:id", isLoggedIn, (req, res) => {
 });
 
 // Updating Recipe, similiar as Deleting goes to related handleUpdateRecipe in the recipeService frontend.
-router.put("/:recipeId", isLoggedIn, (req, res) => {
+
+router.put("/edit/:recipeId", isLoggedIn, (req, res) => {
   const { recipeId } = req.params;
+  console.log("params", req.params);
   // const { owner } = req.user._id;
   const { title, category, ingredients, stepsRecipe, cookingTime } = req.body;
   const newRecipe = { title, category, ingredients, stepsRecipe, cookingTime };
@@ -107,20 +109,6 @@ router.put("/:recipeId", isLoggedIn, (req, res) => {
 // router.get("/:id/edit", isLoggedIn, (req, res) => {
 //   const { id } = req.params;
 //   // console.log(req.params);
-
-//   Recipe.findById(id)
-//     .populate("owner")
-//     .then((recipe) => {
-//       if (!recipe) {
-//         return res
-//           .status(404)
-//           .json({ errorMessage: `Recipe with the id ${id} does not exist` });
-//       }
-
-//       res.json({ recipe });
-//       // console.log(recipe);
-//     });
-// });
 
 // router.patch("/:id/edit", isLoggedIn, (req, res) => {
 //   const { id } = req.params;

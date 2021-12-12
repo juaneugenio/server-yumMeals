@@ -51,7 +51,6 @@ router.get("/:id", (req, res) => {
     });
 });
 
-<<<<<<< HEAD
 router.post("/comment", isLoggedIn, (req, res) => {
   // console.log(`LOOOOOOOOOOOK`, req.headers);
   // console.log(`reqbody`, req.body);
@@ -74,9 +73,6 @@ router.post("/comment", isLoggedIn, (req, res) => {
 });
 
 // Deleting singleRecipe goes here in the Backend and then we can go to the related handleDeleteSingleRecipe in the frontend
-=======
-// Deleting singleRecipe goes here in the Backend and then we can go to the related handleDeleteSingleRecipe in the frontend.
->>>>>>> juan
 router.delete("/:id", isLoggedIn, (req, res) => {
   const { id } = req.params;
   // console.log(req.params);
@@ -84,7 +80,9 @@ router.delete("/:id", isLoggedIn, (req, res) => {
     .then((deletedRecipe) =>
       res.status(200).json({ message: `Recipe ${deletedRecipe} was deleted` })
     )
-    .catch((error) => res.status(500).json({ message: "Something went wrong" }));
+    .catch((error) =>
+      res.status(500).json({ message: "Something went wrong" })
+    );
 });
 
 // Updating Recipe, similiar as Deleting goes to related handleUpdateRecipe in the recipeService frontend.
@@ -97,9 +95,13 @@ router.put("/:recipeId", isLoggedIn, (req, res) => {
   Recipe.findByIdAndUpdate(recipeId, newRecipe, { new: true })
     .then((updatedRecipe) => {
       console.log({ updatedRecipe });
-      res.status(200).json({ message: `Recipe ${updatedRecipe} was succesful updated` });
+      res
+        .status(200)
+        .json({ message: `Recipe ${updatedRecipe} was succesful updated` });
     })
-    .catch((error) => res.status(500).json({ message: "Something went wrong" }));
+    .catch((error) =>
+      res.status(500).json({ message: "Something went wrong" })
+    );
 });
 
 // router.get("/:id/edit", isLoggedIn, (req, res) => {
@@ -133,23 +135,6 @@ router.put("/:recipeId", isLoggedIn, (req, res) => {
 //           .status(404)
 //           .json({ errorMessage: `Recipe with the id ${id} does not exist` });
 //       }
-//       //     // compare here
-//       // if (req.user._id === req.recipe.owner)
-//       //we have to get the check the Spider for this.
-
-//       // Recipe.findByIdAndUpdate(
-//       //   id,
-//       //   { title, category, ingredients, stepsRecipe, cookingTime },
-//       //   // {
-//       //   //   title: req.body.title,
-//       //   //   category: req.body.category,
-//       //   //   ingredients: req.body.ingredients,
-//       //   //   stepsRecipe: req.body.stepsRecipe,
-//       //   // },
-//       //   { new: true }
-//       // ).then((newRecipe) => {
-//       //   res.json({ recipe: newRecipe });
-//       // });
 //     });
 // });
 

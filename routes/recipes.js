@@ -34,7 +34,7 @@ router.post("/create", isLoggedIn, (req, res) => {
     });
 });
 
-router.get("/:id", (req, res) => {
+router.get("/:recipeId", (req, res) => {
   console.log("authorization:", req.headers.authorization);
   const sessionId = req.headers.authorization;
   console.log("sessionId:", sessionId);
@@ -44,22 +44,18 @@ router.get("/:id", (req, res) => {
    *
    *  */
 
-  const { id } = req.params;
+  const { recipeId } = req.params;
   console.log("req.params:", req.params);
-  Recipe.findById(id)
+  Recipe.findById(recipeId)
     .populate("owner")
     .then((recipe) => {
       if (!recipe) {
         return res.status(404).json({
-          errorMessage: `The recipe with this id ${id} does not exist`,
+          errorMessage: `The recipe with this id ${recipeId} does not exist`,
         });
       }
 
-      // console.log("req.recipe._id:", req.recipe._id);
-      // console.log("req.params:", req.params);
-      // console.log("req.params.id:", req.params.id);
-
-      Rating.find({ recipe: id })
+      Rating.find({ recipe: recipeId })
         .populate("user recipe")
         .then((rating) => {
           if (!rating) {

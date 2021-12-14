@@ -10,11 +10,7 @@ router.patch(
   upload.single("profileImage"),
   (req, res) => {
     const { userId } = req.body;
-    User.findByIdAndUpdate(
-      userId,
-      { profileImage: req.file.path },
-      { new: true }
-    )
+    User.findByIdAndUpdate(userId, { profileImage: req.file.path }, { new: true })
       .then((updatedUser) => {
         res.json({
           success: true,
@@ -29,5 +25,15 @@ router.patch(
       });
   }
 );
+
+//Deleting user
+
+router.delete("/:userId", isLoggedIn, (req, res) => {
+  const { userId } = req.params;
+
+  User.findByIdAndDelete(userId).then((deletedUser) => {
+    res.json({ succes: true });
+  });
+});
 
 module.exports = router;

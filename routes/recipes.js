@@ -1,9 +1,11 @@
 const { Router } = require("express");
+const DynamicRating = require("../middleware/DynamicRating");
 const DynamicRecipe = require("../middleware/DynamicRecipe");
 // const upload = require("../middleware/cloudinary");
 const isLoggedIn = require("../middleware/isLoggedIn");
 const Rating = require("../models/Rating.model");
 const Recipe = require("../models/Recipe.model");
+const withUser = require("../middleware/withUser");
 const router = Router();
 const compareIds = require("../utils/compareIds");
 
@@ -21,6 +23,7 @@ router.post("/create", isLoggedIn, (req, res) => {
     category: req.body.category,
     ingredients: req.body.ingredients,
     stepsRecipe: req.body.stepsRecipe,
+    cookingTime: req.body.cookingTime,
 
     // image: req.file.path,
   })
@@ -56,7 +59,7 @@ router.get("/:recipeId", (req, res) => {
       }
 
       Rating.find({ recipe: recipeId })
-        .populate("user recipe")
+        .populate("rater recipe")
         .then((rating) => {
           if (!rating) {
             return res.json({ recipe });
@@ -68,28 +71,11 @@ router.get("/:recipeId", (req, res) => {
     });
 });
 
-router.get("/:search", (req, res) => {
-  const { search } = req.params;
-  console.log("req.params:", req.params);
-  // const filter = { title: search };
-  // Recipe.find({ filter })
-  //   .populate("owner")
-  //   .then((results) => {
-  //     if (!results) {
-  //       return res.status(404).json({
-  //         errorMessage: `No match found`,
-  //       });
-  //     }
-  //     res.json({ results });
-  //     console.log("results:", results);
-  // });
-});
-
 router.post("/comment", isLoggedIn, (req, res) => {
-  // console.log(`LOOOOOOOOOOOK`, req.headers);
-  // console.log(`reqbody`, req.body);
+  console.log(`LOOOOOOOOOOOK`, req.headers);
+  console.log(`reqbody`, req.body);
   Rating.create({
-    user: req.user._id,
+    rater: req.user._id,
     recipe: req.body.recipeId,
     rating: req.body.userRating,
     comment: req.body.comment,
@@ -114,7 +100,9 @@ router.delete("/:id", isLoggedIn, (req, res) => {
     .then((deletedRecipe) =>
       res.status(200).json({ message: `Recipe ${deletedRecipe} was deleted` })
     )
-    .catch((error) => res.status(500).json({ message: "Something went wrong" }));
+    .catch((error) =>
+      res.status(500).json({ message: "Something went wrong" })
+    );
 });
 
 // Updating Recipe, similiar as Deleting goes to related handleUpdateRecipe in the recipeService frontend.
@@ -129,46 +117,13 @@ router.put("/edit/:recipeId", isLoggedIn, (req, res) => {
   Recipe.findByIdAndUpdate(recipeId, newRecipe, { new: true })
     .then((updatedRecipe) => {
       console.log({ updatedRecipe });
-      res.status(200).json({ message: `Recipe ${updatedRecipe} was succesful updated` });
+      res
+        .status(200)
+        .json({ message: `Recipe ${updatedRecipe} was succesful updated` });
     })
-    .catch((error) => res.status(500).json({ message: "Something went wrong" }));
+    .catch((error) =>
+      res.status(500).json({ message: "Something went wrong" })
+    );
 });
-
-// router.get("/:id/edit", isLoggedIn, (req, res) => {
-//   const { id } = req.params;
-//   // console.log(req.params);
-
-// router.patch("/:id/edit", isLoggedIn, (req, res) => {
-//   const { id } = req.params;
-//   const { title, category, ingredients, stepsRecipe, cookingTime } = req.body;
-
-//   Recipe.findById(id)
-//     .populate("owner")
-//     .then((recipe) => {
-//       console.log("this is ", recipe);
-//       if (!recipe) {
-//         return res
-//           .status(404)
-//           .json({ errorMessage: `Recipe with the id ${id} does not exist` });
-//       }
-//       //     // compare here
-//       // if (req.user._id === req.recipe.owner)
-//       //we have to get the check the Spider for this.
-
-//       // Recipe.findByIdAndUpdate(
-//       //   id,
-//       //   { title, category, ingredients, stepsRecipe, cookingTime },
-//       //   // {
-//       //   //   title: req.body.title,
-//       //   //   category: req.body.category,
-//       //   //   ingredients: req.body.ingredients,
-//       //   //   stepsRecipe: req.body.stepsRecipe,
-//       //   // },
-//       //   { new: true }
-//       // ).then((newRecipe) => {
-//       //   res.json({ recipe: newRecipe });
-//       // });
-//     });
-// });
 
 module.exports = router;

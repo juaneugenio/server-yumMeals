@@ -12,7 +12,7 @@ const recipeSchema = new Schema(
       type: String,
     },
     cookingTime: {
-      type: Number,
+      type: String,
       // required: true,
     },
     ingredients: {
@@ -21,10 +21,10 @@ const recipeSchema = new Schema(
     stepsRecipe: {
       type: [String],
     },
-    // images: {
-    //   type: String,
-    //   default: "PUT A DEFAULT URL OR WHATEVER",
-    // },
+    images: {
+      type: String,
+      default: "PUT A DEFAULT URL OR WHATEVER",
+    },
   },
   // this second object adds extra properties: `createdAt` and `updatedAt`{
   {

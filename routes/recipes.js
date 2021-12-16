@@ -1,5 +1,5 @@
 const { Router } = require("express");
-// const upload = require("../middleware/cloudinary");
+const upload = require("../middleware/cloudinary");
 const isLoggedIn = require("../middleware/isLoggedIn");
 const Rating = require("../models/Rating.model");
 const Recipe = require("../models/Recipe.model");
@@ -12,25 +12,59 @@ router.get("/", (req, res) => {
 });
 
 //upload.single("juanPostPic")
-router.post("/create", isLoggedIn, (req, res) => {
-  Recipe.create({
-    owner: req.user._id,
-    title: req.body.title,
-    category: req.body.category,
-    ingredients: req.body.ingredients,
-    stepsRecipe: req.body.stepsRecipe,
-
-    // image: req.file.path,
-  })
-    .then((createRecipe) => {
-      // console.log(createRecipe);
-      res.json({ recipes: createRecipe });
+router.post(
+  "/create",
+  isLoggedIn,
+  upload.single("imageRecipePic"),
+  (req, res) => {
+    console.log("REQ.FILE", req);
+    Recipe.create({
+      owner: req.user._id,
+      title: req.body.title,
+      category: req.body.category,
+      ingredients: req.body.ingredients,
+      cookingTime: req.body.cookingTime,
+      stepsRecipe: req.body.stepsRecipe,
+      imageRecipe: req.file.path,
     })
-    .catch((e) => {
-      console.log(e);
-      res.status(500).json({ errorMessage: "Something fed up" });
-    });
-});
+      .then((createRecipe) => {
+        console.log(createRecipe);
+        res.json({
+          recipe: createRecipe,
+        });
+      })
+      .catch((e) => {
+        console.log(e);
+        res.status(500).json({ errorMessage: "Something fed up" });
+      });
+  }
+);
+
+// router.patch(
+//   "/updateRecipeImage",
+//   isLoggedIn,
+//   upload.single("recipeImage"),
+//   (req, res) => {
+//     const { userId } = req.body;
+//     User.findByIdAndUpdate(
+//       userId,
+//       { recipeImage: req.file.path },
+//       { new: true }
+//     )
+//       .then((updatedImage) => {
+//         res.json({
+//           success: true,
+//           recipeImage: updatedImage.recipeImage,
+//         });
+//       })
+//       .catch((err) => {
+//         res.json({
+//           success: false,
+//           message: "CHECK IT OUT",
+//         });
+//       });
+//   }
+// );
 
 router.get("/:id", (req, res) => {
   const { id } = req.params;

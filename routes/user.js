@@ -10,7 +10,7 @@ router.patch("/edit-profile", isLoggedIn, (req, res) => {
   const { username } = req.body;
   const { _id } = req.user;
 
-  if (username === req.user.username) {
+  if (username === _id.username) {
     return res.json({ user: req.user });
   }
 
@@ -22,6 +22,7 @@ router.patch("/edit-profile", isLoggedIn, (req, res) => {
     }
 
     User.findByIdAndUpdate(_id, { username }, { new: true }).then((updatedUser) => {
+      // console.log("CL 👉---", updatedUser);
       res.json({ user: updatedUser });
     });
   });
@@ -60,36 +61,33 @@ router.patch(
 //   });
 // });
 
-router.delete("/:userId"),
-  isLoggedIn,
-  async (req, res) => {
-    const { userId } = req.params;
-    const arrayUserRecipes = await Recipe.find({ owner: userId });
-    const allUserRecipes = arrayUserRecipes.map((theRecipe) => theRecipe._id);
-    console.log({ theRecipe });
+router.delete("/:userId", isLoggedIn, async (req, res) => {
+  const { userId } = req.params;
+  const arrayUserRecipes = await Recipe.find({ owner: userId });
+  console.log("ARRAY RECIPES", arrayUserRecipes);
+  const allUserRecipes = arrayUserRecipes.map((theRecipe) => theRecipe._id);
+  console.log("ARRAY ALL RECIPES", allUserRecipes);
 
-    // const userSession = await Session.findById(req.headers.authorization).populate(
-    //   "user"
-    // )
+  // const userSession = await Session.findById(req.headers.authorization).populate(
+  //  "user")
 
-    const userSession = req.headers.authorization;
+  const userSession = req.headers.authorization;
 
-    Session.findById(userSession)
-      .populate("user")
-      .then((session) => {
-        if (session.user !== user._id) {
-          return res.status(404).json({
-            errorMessage: "You are not aloud to do this",
-          });
-        }
-        return res.status(200).json(session);
-      });
+  const deleteUser = await Session.findById(userSession).populate("user");
 
-    // await Promise.all([
-    //   Recipe.deleteMany({ _id: { $in: allUserRecipes } }),
-    //   User.findByIdAndDelete(userId),
-    //   Session.findByIdAndDelete(req.headers.authorization),
-    // ]);
-  };
+  if (deleteUser.user._id.toString() !== userId) {
+    console.log("We are here--", deleteUser.user._id.toString());
+    return res.status(404).json({
+      errorMessage: "You are not aloud to do this",
+    });
+  }
+
+  await Promise.all([
+    Recipe.deleteMany({ _id: { $in: allUserRecipes } }),
+    User.findByIdAndDelete(userId),
+    Session.findByIdAndDelete(req.headers.authorization),
+  ]);
+  return res.status(200).json({ message: "All good" });
+});
 
 module.exports = router;

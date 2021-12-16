@@ -10,9 +10,7 @@ module.exports = (req, res, next) => {
     .populate({ path: "user", model: "User" })
     .then((session) => {
       if (!session) {
-        return res
-          .status(404)
-          .json({ errorMessage: "No session started for this user" });
+        return res.status(404).json({ errorMessage: "No session started for this user" });
       }
       // makes the user available in `req.user` from now onwards
       req.user = session.user;

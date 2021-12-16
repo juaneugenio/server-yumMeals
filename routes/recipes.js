@@ -1,9 +1,14 @@
 const { Router } = require("express");
 const upload = require("../middleware/cloudinary");
+const DynamicRating = require("../middleware/DynamicRating");
+const DynamicRecipe = require("../middleware/DynamicRecipe");
+// const upload = require("../middleware/cloudinary");
 const isLoggedIn = require("../middleware/isLoggedIn");
 const Rating = require("../models/Rating.model");
 const Recipe = require("../models/Recipe.model");
+const withUser = require("../middleware/withUser");
 const router = Router();
+const compareIds = require("../utils/compareIds");
 
 router.get("/", (req, res) => {
   Recipe.find({}).then((allRecipes) => {
@@ -40,57 +45,49 @@ router.post(
   }
 );
 
-// router.patch(
-//   "/updateRecipeImage",
-//   isLoggedIn,
-//   upload.single("recipeImage"),
-//   (req, res) => {
-//     const { userId } = req.body;
-//     User.findByIdAndUpdate(
-//       userId,
-//       { recipeImage: req.file.path },
-//       { new: true }
-//     )
-//       .then((updatedImage) => {
-//         res.json({
-//           success: true,
-//           recipeImage: updatedImage.recipeImage,
-//         });
-//       })
-//       .catch((err) => {
-//         res.json({
-//           success: false,
-//           message: "CHECK IT OUT",
-//         });
-//       });
-//   }
-// );
+router.get("/:recipeId", withUser, (req, res) => {
+  console.log("authorization:", req.headers.authorization);
+  const sessionId = req.headers.authorization;
+  console.log("sessionId:", sessionId);
+  console.log("req.user:", req.user);
+  /**
+   * req.headers.authorization's value is the access token = the ID of the session
+   * which is unique for every user, and stored in the DB in the Session Collection
+   *
+   *  */
 
-router.get("/:id", (req, res) => {
-  const { id } = req.params;
-  // console.log(req.params);
+  const { recipeId } = req.params;
+  console.log("req.params:", req.params);
 
-  Recipe.findById(id)
+  Recipe.findById(recipeId)
     .populate("owner")
     .then((recipe) => {
       console.log("THIS IS A RECIPE", recipe);
       if (!recipe) {
-        return res
-          .status(404)
-          .json({ errorMessage: `Recipe with the id ${id} does not exist` });
+        return res.status(404).json({
+          errorMessage: `The recipe with this id ${recipeId} does not exist`,
+        });
       }
-
-      res.json({ recipe });
-      // console.log(recipe);
+      // We search all ratings for all user except the current user
+      Rating.find({ recipe: recipeId, rater: { $ne: req.user?._id } })
+        .populate("rater recipe")
+        .then((rating) => {
+          if (!rating) {
+            return res.json({ recipe });
+          }
+          res.json({ recipe, rating });
+          console.log("rating:", rating);
+        });
     });
 });
 
-router.post("/comment", isLoggedIn, (req, res) => {
+router.post("/rating/:recipeId", isLoggedIn, (req, res) => {
   // console.log(`LOOOOOOOOOOOK`, req.headers);
-  // console.log(`reqbody`, req.body);
+  console.log(`reqbody`, req.body);
+  console.log("REQ.PARAMS:", req.params);
   Rating.create({
-    user: req.user._id,
-    recipe: req.body.recipeId,
+    rater: req.user._id,
+    recipe: req.params.recipeId,
     rating: req.body.userRating,
     comment: req.body.comment,
 
@@ -109,7 +106,7 @@ router.post("/comment", isLoggedIn, (req, res) => {
 // Deleting singleRecipe goes here in the Backend and then we can go to the related handleDeleteSingleRecipe in the frontend
 router.delete("/:id", isLoggedIn, (req, res) => {
   const { id } = req.params;
-  // console.log(req.params);
+  console.log("delete req.params:", req.params);
   Recipe.findByIdAndDelete(id)
     .then((deletedRecipe) =>
       res.status(200).json({ message: `Recipe ${deletedRecipe} was deleted` })
@@ -145,10 +142,6 @@ router.put(
     if (req.file) {
       newRecipe.imageRecipe = req.file.path;
     }
-    // const imageUrl;
-    // if (req.file) {
-    //   imageUrl = req.file.path;
-    // }
 
     Recipe.findByIdAndUpdate(recipeId, newRecipe, { new: true })
       .then((updatedRecipe) => {
@@ -163,25 +156,5 @@ router.put(
       );
   }
 );
-
-// router.get("/:id/edit", isLoggedIn, (req, res) => {
-//   const { id } = req.params;
-//   // console.log(req.params);
-
-// router.patch("/:id/edit", isLoggedIn, (req, res) => {
-//   const { id } = req.params;
-//   const { title, category, ingredients, stepsRecipe, cookingTime } = req.body;
-
-//   Recipe.findById(id)
-//     .populate("owner")
-//     .then((recipe) => {
-//       console.log("this is ", recipe);
-//       if (!recipe) {
-//         return res
-//           .status(404)
-//           .json({ errorMessage: `Recipe with the id ${id} does not exist` });
-//       }
-//     });
-// });
 
 module.exports = router;

@@ -11,24 +11,20 @@ const recipeSchema = new Schema(
     category: {
       type: String,
     },
-    // cookingTime: {
-    //   type: Number,
-    //   required: true,
-    // },
+    cookingTime: {
+      type: String,
+      // required: true,
+    },
     ingredients: {
       type: [String],
     },
     stepsRecipe: {
       type: [String],
     },
-    // images: {
-    //   type: String,
-    //   default: "PUT A DEFAULT URL OR WHATEVER",
-    // },
-    // //! HOW CAN WE LINK EACH RATING TO THE USER WHO MAKES THE RATING
-    // ratings: [
-    //   { rating: Number, user: { type: Schema.Types.ObjectId, ref: "User" } },
-    // ],
+    images: {
+      type: String,
+      default: "PUT A DEFAULT URL OR WHATEVER",
+    },
   },
   // this second object adds extra properties: `createdAt` and `updatedAt`{
   {

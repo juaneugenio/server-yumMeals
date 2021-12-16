@@ -37,10 +37,11 @@ router.post("/create", isLoggedIn, (req, res) => {
     });
 });
 
-router.get("/:recipeId", (req, res) => {
+router.get("/:recipeId", withUser, (req, res) => {
   console.log("authorization:", req.headers.authorization);
   const sessionId = req.headers.authorization;
   console.log("sessionId:", sessionId);
+  console.log("req.user:", req.user);
   /**
    * req.headers.authorization's value is the access token = the ID of the session
    * which is unique for every user, and stored in the DB in the Session Collection
@@ -49,6 +50,7 @@ router.get("/:recipeId", (req, res) => {
 
   const { recipeId } = req.params;
   console.log("req.params:", req.params);
+
   Recipe.findById(recipeId)
     .populate("owner")
     .then((recipe) => {
@@ -57,26 +59,39 @@ router.get("/:recipeId", (req, res) => {
           errorMessage: `The recipe with this id ${recipeId} does not exist`,
         });
       }
-
-      Rating.find({ recipe: recipeId })
+      // We search all ratings for all user except the current user
+      Rating.find({ recipe: recipeId, rater: { $ne: req.user?._id } })
         .populate("rater recipe")
         .then((rating) => {
           if (!rating) {
             return res.json({ recipe });
           }
-
           res.json({ recipe, rating });
           console.log("rating:", rating);
         });
     });
 });
 
-router.post("/comment", isLoggedIn, (req, res) => {
-  console.log(`LOOOOOOOOOOOK`, req.headers);
+// router.get("/rating/:recipeId", isLoggedIn, (req, res) => {
+//   const { recipeId } = req.params;
+//   console.log("req.params:", recipeId);
+//   console.log("req.user:", req.user);
+
+//   Rating.find({ recipe: recipeId, rater: { $eq: req.user?._id } })
+//     // .populate("rater recipe")
+//     .then((rating) => {
+//       console.log("getRating:", rating);
+//       // res.json({ rating });
+//     });
+// });
+
+router.post("/rating/:recipeId", isLoggedIn, (req, res) => {
+  // console.log(`LOOOOOOOOOOOK`, req.headers);
   console.log(`reqbody`, req.body);
+  console.log("REQ.PARAMS:", req.params);
   Rating.create({
     rater: req.user._id,
-    recipe: req.body.recipeId,
+    recipe: req.params.recipeId,
     rating: req.body.userRating,
     comment: req.body.comment,
 

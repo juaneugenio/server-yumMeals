@@ -59,6 +59,15 @@ router.get("/:recipeId", withUser, (req, res) => {
           errorMessage: `The recipe with this id ${recipeId} does not exist`,
         });
       }
+      recipeIsRated = false;
+      Rating.find({ recipe: recipeId, rater: { $eq: req.user?._id } }).then(
+        (isUserRated) => {
+          if (isUserRated) {
+            return (recipeIsRated = true);
+          }
+        }
+      );
+
       // We search all ratings for all user except the current user
       Rating.find({ recipe: recipeId, rater: { $ne: req.user?._id } })
         .populate("rater recipe")
@@ -66,24 +75,39 @@ router.get("/:recipeId", withUser, (req, res) => {
           if (!rating) {
             return res.json({ recipe });
           }
-          res.json({ recipe, rating });
-          console.log("rating:", rating);
+
+          res.json({ recipe, rating, recipeIsRated });
+          console.log("GET SINGLE RECIPE RATINGS:", rating);
         });
+    })
+    .catch((e) => {
+      console.log(e);
+      res.status(500).json({ errorMessage: "Something fed up" });
     });
 });
 
-// router.get("/rating/:recipeId", isLoggedIn, (req, res) => {
-//   const { recipeId } = req.params;
-//   console.log("req.params:", recipeId);
-//   console.log("req.user:", req.user);
+router.get("/rating/:recipeId", isLoggedIn, DynamicRecipe, (req, res) => {
+  const { recipeId } = req.params;
+  console.log("req.params:", recipeId);
+  console.log("req.user:", req.user);
 
-//   Rating.find({ recipe: recipeId, rater: { $eq: req.user?._id } })
-//     // .populate("rater recipe")
-//     .then((rating) => {
-//       console.log("getRating:", rating);
-//       // res.json({ rating });
-//     });
-// });
+  recipeIsRated = false;
+
+  Rating.find({ recipe: recipeId, rater: { $eq: req.user?._id } })
+    // .populate("rater recipe")
+    .then((oneRating) => {
+      if (!oneRating) {
+        return;
+      }
+      recipeIsRated = true;
+      console.log("GET USER RATING:", oneRating);
+      res.json({ oneRating, recipeIsRated });
+    })
+    .catch((e) => {
+      console.log(e);
+      res.status(500).json({ errorMessage: "Something fed up" });
+    });
+});
 
 router.post("/rating/:recipeId", isLoggedIn, (req, res) => {
   // console.log(`LOOOOOOOOOOOK`, req.headers);
@@ -94,8 +118,6 @@ router.post("/rating/:recipeId", isLoggedIn, (req, res) => {
     recipe: req.params.recipeId,
     rating: req.body.userRating,
     comment: req.body.comment,
-
-    // image: req.file.path,
   })
     .then((createRating) => {
       console.log("createRating:", createRating);

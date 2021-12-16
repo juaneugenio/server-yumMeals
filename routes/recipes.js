@@ -2,7 +2,7 @@ const { Router } = require("express");
 const upload = require("../middleware/cloudinary");
 const DynamicRating = require("../middleware/DynamicRating");
 const DynamicRecipe = require("../middleware/DynamicRecipe");
-// const upload = require("../middleware/cloudinary");
+const upload = require("../middleware/cloudinary");
 const isLoggedIn = require("../middleware/isLoggedIn");
 const Rating = require("../models/Rating.model");
 const Recipe = require("../models/Recipe.model");
@@ -17,33 +17,28 @@ router.get("/", (req, res) => {
 });
 
 //upload.single("juanPostPic")
-router.post(
-  "/create",
-  isLoggedIn,
-  upload.single("imageRecipePic"),
-  (req, res) => {
-    console.log("REQ.FILE", req);
-    Recipe.create({
-      owner: req.user._id,
-      title: req.body.title,
-      category: req.body.category,
-      ingredients: req.body.ingredients,
-      cookingTime: req.body.cookingTime,
-      stepsRecipe: req.body.stepsRecipe,
-      imageRecipe: req.file.path,
-    })
-      .then((createRecipe) => {
-        console.log(createRecipe);
-        res.json({
-          recipe: createRecipe,
-        });
-      })
-      .catch((e) => {
-        console.log(e);
-        res.status(500).json({ errorMessage: "Something fed up" });
+router.post("/create", isLoggedIn, upload.single("imageRecipePic"), (req, res) => {
+  console.log("REQ.FILE", req);
+  Recipe.create({
+    owner: req.user._id,
+    title: req.body.title,
+    category: req.body.category,
+    ingredients: req.body.ingredients,
+    cookingTime: req.body.cookingTime,
+    stepsRecipe: req.body.stepsRecipe,
+    imageRecipe: req.file.path,
+  })
+    .then((createRecipe) => {
+      console.log(createRecipe);
+      res.json({
+        recipe: createRecipe,
       });
-  }
-);
+    })
+    .catch((e) => {
+      console.log(e);
+      res.status(500).json({ errorMessage: "Something fed up" });
+    });
+});
 
 router.get("/:recipeId", withUser, (req, res) => {
   console.log("authorization:", req.headers.authorization);
@@ -146,9 +141,7 @@ router.delete("/:id", isLoggedIn, (req, res) => {
     .then((deletedRecipe) =>
       res.status(200).json({ message: `Recipe ${deletedRecipe} was deleted` })
     )
-    .catch((error) =>
-      res.status(500).json({ message: "Something went wrong" })
-    );
+    .catch((error) => res.status(500).json({ message: "Something went wrong" }));
 });
 
 // Updating Recipe, similiar as Deleting goes to related handleUpdateRecipe in the recipeService frontend.
@@ -186,9 +179,7 @@ router.put(
           .status(200)
           .json({ message: `Recipe ${updatedRecipe} was succesful updated` });
       })
-      .catch((error) =>
-        res.status(500).json({ message: "Something went wrong" })
-      );
+      .catch((error) => res.status(500).json({ message: "Something went wrong" }));
   }
 );
 

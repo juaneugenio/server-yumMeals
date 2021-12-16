@@ -95,8 +95,6 @@ router.get("/:recipeId", withUser, (req, res) => {
     });
 });
 
-<<<<<<< HEAD
-=======
 router.get("/rating/:recipeId", isLoggedIn, DynamicRecipe, (req, res) => {
   const { recipeId } = req.params;
   console.log("req.params:", recipeId);
@@ -120,7 +118,6 @@ router.get("/rating/:recipeId", isLoggedIn, DynamicRecipe, (req, res) => {
     });
 });
 
->>>>>>> a0cd55b07c8e7f8ae12638c02e8a88ffbb474f40
 router.post("/rating/:recipeId", isLoggedIn, (req, res) => {
   // console.log(`LOOOOOOOOOOOK`, req.headers);
   console.log(`reqbody`, req.body);

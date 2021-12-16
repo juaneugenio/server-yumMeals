@@ -24,8 +24,8 @@ const recipeSchema = new Schema(
     },
     imageRecipe: {
       type: String,
-      default:
-        "https://res.cloudinary.com/ilev/image/upload/v1639332543/Yummeals/default-image_jzuzfn.jpg",
+      // default:
+      //   "https://res.cloudinary.com/ilev/image/upload/v1639332543/Yummeals/default-image_jzuzfn.jpg",
     },
   },
   // this second object adds extra properties: `createdAt` and `updatedAt`{

@@ -1,4 +1,5 @@
 const { Router } = require("express");
+const upload = require("../middleware/cloudinary");
 const DynamicRating = require("../middleware/DynamicRating");
 const DynamicRecipe = require("../middleware/DynamicRecipe");
 const upload = require("../middleware/cloudinary");
@@ -16,26 +17,33 @@ router.get("/", (req, res) => {
 });
 
 //upload.single("juanPostPic")
-router.post("/create", isLoggedIn, (req, res) => {
-  Recipe.create({
-    owner: req.user._id,
-    title: req.body.title,
-    category: req.body.category,
-    ingredients: req.body.ingredients,
-    stepsRecipe: req.body.stepsRecipe,
-    cookingTime: req.body.cookingTime,
-
-    // image: req.file.path,
-  })
-    .then((createRecipe) => {
-      // console.log(createRecipe);
-      res.json({ recipes: createRecipe });
+router.post(
+  "/create",
+  isLoggedIn,
+  upload.single("imageRecipePic"),
+  (req, res) => {
+    console.log("REQ.FILE", req);
+    Recipe.create({
+      owner: req.user._id,
+      title: req.body.title,
+      category: req.body.category,
+      ingredients: req.body.ingredients,
+      cookingTime: req.body.cookingTime,
+      stepsRecipe: req.body.stepsRecipe,
+      imageRecipe: req.file.path,
     })
-    .catch((e) => {
-      console.log(e);
-      res.status(500).json({ errorMessage: "Something fed up" });
-    });
-});
+      .then((createRecipe) => {
+        console.log(createRecipe);
+        res.json({
+          recipe: createRecipe,
+        });
+      })
+      .catch((e) => {
+        console.log(e);
+        res.status(500).json({ errorMessage: "Something fed up" });
+      });
+  }
+);
 
 router.get("/:recipeId", withUser, (req, res) => {
   console.log("authorization:", req.headers.authorization);
@@ -54,6 +62,7 @@ router.get("/:recipeId", withUser, (req, res) => {
   Recipe.findById(recipeId)
     .populate("owner")
     .then((recipe) => {
+      console.log("THIS IS A RECIPE", recipe);
       if (!recipe) {
         return res.status(404).json({
           errorMessage: `The recipe with this id ${recipeId} does not exist`,
@@ -144,23 +153,43 @@ router.delete("/:id", isLoggedIn, (req, res) => {
 
 // Updating Recipe, similiar as Deleting goes to related handleUpdateRecipe in the recipeService frontend.
 
-router.put("/edit/:recipeId", isLoggedIn, (req, res) => {
-  const { recipeId } = req.params;
-  console.log("params", req.params);
-  // const { owner } = req.user._id;
-  const { title, category, ingredients, stepsRecipe, cookingTime } = req.body;
-  const newRecipe = { title, category, ingredients, stepsRecipe, cookingTime };
+router.put(
+  "/edit/:recipeId",
+  isLoggedIn,
+  upload.single("imageUrl"),
 
-  Recipe.findByIdAndUpdate(recipeId, newRecipe, { new: true })
-    .then((updatedRecipe) => {
-      console.log({ updatedRecipe });
-      res
-        .status(200)
-        .json({ message: `Recipe ${updatedRecipe} was succesful updated` });
-    })
-    .catch((error) =>
-      res.status(500).json({ message: "Something went wrong" })
-    );
-});
+  (req, res) => {
+    const { recipeId } = req.params;
+    console.log("params", req.params);
+    // const { owner } = req.user._id;
+    console.log("req", req);
+    console.log("imageeeee somewhereee?", req.file);
+    const { title, category, ingredients, stepsRecipe, cookingTime } = req.body;
+
+    const newRecipe = {
+      title,
+      category,
+      ingredients,
+      stepsRecipe,
+      cookingTime,
+    };
+
+    if (req.file) {
+      newRecipe.imageRecipe = req.file.path;
+    }
+
+    Recipe.findByIdAndUpdate(recipeId, newRecipe, { new: true })
+      .then((updatedRecipe) => {
+        console.log({ updatedRecipe });
+        console.log("image maybe?", newRecipe);
+        res
+          .status(200)
+          .json({ message: `Recipe ${updatedRecipe} was succesful updated` });
+      })
+      .catch((error) =>
+        res.status(500).json({ message: "Something went wrong" })
+      );
+  }
+);
 
 module.exports = router;

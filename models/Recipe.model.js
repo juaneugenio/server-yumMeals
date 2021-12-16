@@ -1,4 +1,5 @@
 const { Schema, model } = require("mongoose");
+// import imagedefault from "../assets/default-image.jpg"
 
 // TODO: Please make sure you edit the user model to whatever makes sense in this case
 const recipeSchema = new Schema(
@@ -21,9 +22,10 @@ const recipeSchema = new Schema(
     stepsRecipe: {
       type: [String],
     },
-    images: {
+    imageRecipe: {
       type: String,
-      default: "PUT A DEFAULT URL OR WHATEVER",
+      // default:
+      //   "https://res.cloudinary.com/ilev/image/upload/v1639332543/Yummeals/default-image_jzuzfn.jpg",
     },
   },
   // this second object adds extra properties: `createdAt` and `updatedAt`{

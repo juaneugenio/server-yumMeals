@@ -98,13 +98,13 @@ router.get("/rating/:recipeId", isLoggedIn, DynamicRecipe, (req, res) => {
   console.log("req.params:", recipeId);
   console.log("req.user:", req.user);
 
-  recipeIsRated = false;
-
   Rating.find({ recipe: recipeId, rater: { $eq: req.user?._id } })
     // .populate("rater recipe")
     .then((oneRating) => {
-      if (!oneRating) {
-        return;
+      if (!oneRating.length) {
+        recipeIsRated = false;
+        console.log("GET USER RATING:", oneRating);
+        return res.json({ oneRating, recipeIsRated });
       }
       recipeIsRated = true;
       console.log("GET USER RATING:", oneRating);

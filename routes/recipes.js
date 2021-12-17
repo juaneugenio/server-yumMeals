@@ -1,6 +1,5 @@
 const { Router } = require("express");
 const upload = require("../middleware/cloudinary");
-const DynamicRating = require("../middleware/DynamicRating");
 const DynamicRecipe = require("../middleware/DynamicRecipe");
 const isLoggedIn = require("../middleware/isLoggedIn");
 const Rating = require("../models/Rating.model");

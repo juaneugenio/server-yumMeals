@@ -1,12 +1,15 @@
 //CRUD operation
 
 const { Router } = require("express");
-const router = Router();
-
-// const upload = require("../middleware/cloudinary");
+const upload = require("../middleware/cloudinary");
+const DynamicRating = require("../middleware/DynamicRating");
+const DynamicRecipe = require("../middleware/DynamicRecipe");
 const isLoggedIn = require("../middleware/isLoggedIn");
 const Rating = require("../models/Rating.model");
 const Recipe = require("../models/Recipe.model");
+const withUser = require("../middleware/withUser");
+const router = Router();
+const compareIds = require("../utils/compareIds");
 
 router.get("/", (req, res) => {
   Recipe.find({}).then((allRecipes) => {
@@ -151,60 +154,43 @@ router.delete("/:id", isLoggedIn, (req, res) => {
 
 // Updating Recipe, similiar as Deleting goes to related handleUpdateRecipe in the recipeService frontend.
 
-router.put("/edit/:recipeId", isLoggedIn, (req, res) => {
-  const { recipeId } = req.params;
-  console.log("params", req.params);
-  // const { owner } = req.user._id;
-  const { title, category, ingredients, stepsRecipe, cookingTime } = req.body;
-  const newRecipe = { title, category, ingredients, stepsRecipe, cookingTime };
+router.put(
+  "/edit/:recipeId",
+  isLoggedIn,
+  upload.single("imageUrl"),
 
-  Recipe.findByIdAndUpdate(recipeId, newRecipe, { new: true })
-    .then((updatedRecipe) => {
-      console.log({ updatedRecipe });
-      res
-        .status(200)
-        .json({ message: `Recipe ${updatedRecipe} was succesful updated` });
-    })
-    .catch((error) =>
-      res.status(500).json({ message: "Something went wrong" })
-    );
-});
+  (req, res) => {
+    const { recipeId } = req.params;
+    console.log("params", req.params);
+    // const { owner } = req.user._id;
+    console.log("req", req);
+    console.log("imageeeee somewhereee?", req.file);
+    const { title, category, ingredients, stepsRecipe, cookingTime } = req.body;
 
-// router.get("/:id/edit", isLoggedIn, (req, res) => {
-//   const { id } = req.params;
-//   // console.log(req.params);
+    const newRecipe = {
+      title,
+      category,
+      ingredients,
+      stepsRecipe,
+      cookingTime,
+    };
 
-// router.patch("/:id/edit", isLoggedIn, (req, res) => {
-//   const { id } = req.params;
-//   const { title, category, ingredients, stepsRecipe, cookingTime } = req.body;
+    if (req.file) {
+      newRecipe.imageRecipe = req.file.path;
+    }
 
-//   Recipe.findById(id)
-//     .populate("owner")
-//     .then((recipe) => {
-//       console.log("this is ", recipe);
-//       if (!recipe) {
-//         return res
-//           .status(404)
-//           .json({ errorMessage: `Recipe with the id ${id} does not exist` });
-//       }
-//       //     // compare here
-//       // if (req.user._id === req.recipe.owner)
-//       //we have to get the check the Spider for this.
-
-//       // Recipe.findByIdAndUpdate(
-//       //   id,
-//       //   { title, category, ingredients, stepsRecipe, cookingTime },
-//       //   // {
-//       //   //   title: req.body.title,
-//       //   //   category: req.body.category,
-//       //   //   ingredients: req.body.ingredients,
-//       //   //   stepsRecipe: req.body.stepsRecipe,
-//       //   // },
-//       //   { new: true }
-//       // ).then((newRecipe) => {
-//       //   res.json({ recipe: newRecipe });
-//       // });
-//     });
-// });
+    Recipe.findByIdAndUpdate(recipeId, newRecipe, { new: true })
+      .then((updatedRecipe) => {
+        console.log({ updatedRecipe });
+        console.log("image maybe?", newRecipe);
+        res
+          .status(200)
+          .json({ message: `Recipe ${updatedRecipe} was succesful updated` });
+      })
+      .catch((error) =>
+        res.status(500).json({ message: "Something went wrong" })
+      );
+  }
+);
 
 module.exports = router;

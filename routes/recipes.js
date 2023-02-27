@@ -1,9 +1,12 @@
+//CRUD operation
+
 const { Router } = require("express");
+const router = Router();
+
 // const upload = require("../middleware/cloudinary");
 const isLoggedIn = require("../middleware/isLoggedIn");
 const Rating = require("../models/Rating.model");
 const Recipe = require("../models/Recipe.model");
-const router = Router();
 
 router.get("/", (req, res) => {
   Recipe.find({}).then((allRecipes) => {
@@ -79,7 +82,9 @@ router.delete("/:id", isLoggedIn, (req, res) => {
     .then((deletedRecipe) =>
       res.status(200).json({ message: `Recipe ${deletedRecipe} was deleted` })
     )
-    .catch((error) => res.status(500).json({ message: "Something went wrong" }));
+    .catch((error) =>
+      res.status(500).json({ message: "Something went wrong" })
+    );
 });
 
 // Updating Recipe, similiar as Deleting goes to related handleUpdateRecipe in the recipeService frontend.
@@ -94,9 +99,13 @@ router.put("/edit/:recipeId", isLoggedIn, (req, res) => {
   Recipe.findByIdAndUpdate(recipeId, newRecipe, { new: true })
     .then((updatedRecipe) => {
       console.log({ updatedRecipe });
-      res.status(200).json({ message: `Recipe ${updatedRecipe} was succesful updated` });
+      res
+        .status(200)
+        .json({ message: `Recipe ${updatedRecipe} was succesful updated` });
     })
-    .catch((error) => res.status(500).json({ message: "Something went wrong" }));
+    .catch((error) =>
+      res.status(500).json({ message: "Something went wrong" })
+    );
 });
 
 // router.get("/:id/edit", isLoggedIn, (req, res) => {

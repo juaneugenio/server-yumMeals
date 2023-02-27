@@ -4,7 +4,7 @@ const { Schema, model } = require("mongoose");
 const ratingSchema = new Schema(
   {
     rating: String,
-    user: { type: Schema.Types.ObjectId, ref: "User" },
+    rater: { type: Schema.Types.ObjectId, ref: "User" },
     recipe: { type: Schema.Types.ObjectId, ref: "Recipe" },
     comment: String,
   },

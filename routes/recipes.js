@@ -1,4 +1,4 @@
-//CRUD operation
+/** @format */
 
 const { Router } = require("express");
 const upload = require("../middleware/cloudinary");
@@ -13,7 +13,19 @@ const compareIds = require("../utils/compareIds");
 
 router.get("/", (req, res) => {
   Recipe.find({}).then((allRecipes) => {
-    res.json({ recipes: allRecipes });
+    let ratingId = allRecipes.map((element) => {
+      return element._id;
+    });
+
+    Rating.find({ recipe: ratingId }).then((ratings) => {
+      if (!ratings) {
+        return res.json({ recipe });
+      }
+
+      res.json({ recipes: allRecipes, ratings });
+
+      // res.json({ recipes: allRecipes });
+    });
   });
 });
 
@@ -23,7 +35,7 @@ router.post(
   isLoggedIn,
   upload.single("imageRecipePic"),
   (req, res) => {
-    console.log("REQ.FILE", req);
+    // console.log("REQ.FILE", req);
     Recipe.create({
       owner: req.user._id,
       title: req.body.title,
@@ -34,23 +46,22 @@ router.post(
       imageRecipe: req.file.path,
     })
       .then((createRecipe) => {
-        console.log(createRecipe);
+        // console.log(createRecipe);
         res.json({
           recipe: createRecipe,
         });
       })
       .catch((e) => {
-        console.log(e);
         res.status(500).json({ errorMessage: "Something fed up" });
       });
   }
 );
 
 router.get("/:recipeId", withUser, (req, res) => {
-  console.log("authorization:", req.headers.authorization);
+  // console.log("authorization:", req.headers.authorization);
   const sessionId = req.headers.authorization;
-  console.log("sessionId:", sessionId);
-  console.log("req.user:", req.user);
+  // console.log("sessionId:", sessionId);
+  // console.log("req.user:", req.user);
   /**
    * req.headers.authorization's value is the access token = the ID of the session
    * which is unique for every user, and stored in the DB in the Session Collection
@@ -58,12 +69,12 @@ router.get("/:recipeId", withUser, (req, res) => {
    *  */
 
   const { recipeId } = req.params;
-  console.log("req.params:", req.params);
+  // console.log("req.params:", req.params);
 
   Recipe.findById(recipeId)
     .populate("owner")
     .then((recipe) => {
-      console.log("THIS IS A RECIPE", recipe);
+      // console.log("THIS IS A RECIPE", recipe);
       if (!recipe) {
         return res.status(404).json({
           errorMessage: `The recipe with this id ${recipeId} does not exist`,
@@ -87,19 +98,18 @@ router.get("/:recipeId", withUser, (req, res) => {
           }
 
           res.json({ recipe, rating, recipeIsRated });
-          console.log("GET SINGLE RECIPE RATINGS:", rating);
+          // console.log("GET SINGLE RECIPE RATINGS:", rating);
         });
     })
     .catch((e) => {
-      console.log(e);
       res.status(500).json({ errorMessage: "Something fed up" });
     });
 });
 
 router.get("/rating/:recipeId", isLoggedIn, DynamicRecipe, (req, res) => {
   const { recipeId } = req.params;
-  console.log("req.params:", recipeId);
-  console.log("req.user:", req.user);
+  // console.log("req.params:", recipeId);
+  // console.log("req.user:", req.user);
 
   recipeIsRated = false;
 
@@ -110,19 +120,18 @@ router.get("/rating/:recipeId", isLoggedIn, DynamicRecipe, (req, res) => {
         return;
       }
       recipeIsRated = true;
-      console.log("GET USER RATING:", oneRating);
+      // console.log("GET USER RATING:", oneRating);
       res.json({ oneRating, recipeIsRated });
     })
     .catch((e) => {
-      console.log(e);
       res.status(500).json({ errorMessage: "Something fed up" });
     });
 });
 
 router.post("/rating/:recipeId", isLoggedIn, (req, res) => {
   // console.log(`LOOOOOOOOOOOK`, req.headers);
-  console.log(`reqbody`, req.body);
-  console.log("REQ.PARAMS:", req.params);
+  // console.log(`reqbody`, req.body);
+  // console.log("REQ.PARAMS:", req.params);
   Rating.create({
     rater: req.user._id,
     recipe: req.params.recipeId,
@@ -130,11 +139,10 @@ router.post("/rating/:recipeId", isLoggedIn, (req, res) => {
     comment: req.body.comment,
   })
     .then((createRating) => {
-      console.log("createRating:", createRating);
+      // console.log("createRating:", createRating);
       res.json({ rating: createRating });
     })
     .catch((e) => {
-      console.log(e);
       res.status(500).json({ errorMessage: "Something fed up" });
     });
 });
@@ -142,7 +150,7 @@ router.post("/rating/:recipeId", isLoggedIn, (req, res) => {
 // Deleting singleRecipe goes here in the Backend and then we can go to the related handleDeleteSingleRecipe in the frontend
 router.delete("/:id", isLoggedIn, (req, res) => {
   const { id } = req.params;
-  console.log("delete req.params:", req.params);
+  // console.log("delete req.params:", req.params);
   Recipe.findByIdAndDelete(id)
     .then((deletedRecipe) =>
       res.status(200).json({ message: `Recipe ${deletedRecipe} was deleted` })
@@ -161,10 +169,10 @@ router.put(
 
   (req, res) => {
     const { recipeId } = req.params;
-    console.log("params", req.params);
+    // console.log("params", req.params);
     // const { owner } = req.user._id;
-    console.log("req", req);
-    console.log("imageeeee somewhereee?", req.file);
+    // console.log("req", req);
+    // console.log("imageeeee somewhereee?", req.file);
     const { title, category, ingredients, stepsRecipe, cookingTime } = req.body;
 
     const newRecipe = {
@@ -181,8 +189,8 @@ router.put(
 
     Recipe.findByIdAndUpdate(recipeId, newRecipe, { new: true })
       .then((updatedRecipe) => {
-        console.log({ updatedRecipe });
-        console.log("image maybe?", newRecipe);
+        // console.log({ updatedRecipe });
+        // console.log("image maybe?", newRecipe);
         res
           .status(200)
           .json({ message: `Recipe ${updatedRecipe} was succesful updated` });
